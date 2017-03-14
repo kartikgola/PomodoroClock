@@ -1,0 +1,322 @@
+
+// Navigation bar component for display at top
+let NavBar = React.createClass({
+  render : function() {
+    return (
+      <div>
+        <div className="top-bar">
+          
+          <div className="top-bar-left">
+            <ul className="menu">
+              <li className="menu-text">
+                Pomodoro Clock
+              </li>
+            </ul>
+          </div>
+          
+          <div className="top-bar-right">
+            <ul className="menu">
+              <li className="menu-text">
+                Created by <a href="http://www.kartikgola.com" target="_blank"> Kartik Gola </a>
+              </li>
+            </ul>
+          </div>
+          
+        </div>
+      </div>
+    );
+  }
+});
+
+
+// Pomodoro Clock component that holds state
+let Pomodoro = React.createClass({
+  
+   getInitialState : function(){
+      return {
+        status : 'stopped',
+        minutes : 25,
+        breakLength : 5,
+        count : 25*60,
+        audio : 'off'
+      }
+   },
+  
+  handlePlay : function(){
+      if ( this.state.status !== 'working' ){
+          this.setState({ status : 'working' });
+        
+          let that = this;
+          let clockInstance = setInterval(function() {
+          let c = that.state.count;
+          let status = that.state.status;
+          
+          if ( status == 'working' ){
+            if ( c == 0 ){
+              if( that.state.audio == 'on' ){
+                document.getElementById('workoutOver').volume = 1.0;
+                document.getElementById('workoutOver').play();
+              }
+              that.setState({ status : 'onbreak', count : that.state.breakLength*60 }); 
+            }
+            else that.setState({ count : --c });
+          }
+          else if ( status == 'onbreak' ){
+            if ( c == 0 ){
+              if (that.state.audio == 'on' ) {
+                document.getElementById('breakOver').volume = 1.0;
+                document.getElementById('breakOver').play();
+              }
+              that.setState({ status : 'stopped', count : that.state.minutes*60 });
+              clearInterval(clockInstance);
+            }
+            else that.setState({ count : --c });
+          }
+          else clearInterval(clockInstance);
+        }, 1000);
+      }
+  },
+  
+  handlePause : function(){
+    if ( this.state.status == 'working' || this.state.status == 'onbreak' ){
+      this.setState({
+        status : 'paused'
+      });
+    }
+  },
+  
+  handleStop : function(){
+    if ( this.state.status !== 'stopped' ){
+      this.setState({
+        status : 'stopped',
+        count : this.state.minutes*60
+      });
+    }
+  },
+  
+  handleBreakChange : function(newBreak){
+      if ( newBreak >= 1 && newBreak <= 50 )
+        this.setState({ breakLength : newBreak });
+  },
+  
+  handleMinutesChange : function(newMin){
+      if ( newMin >= 1 && newMin <= 100 )
+        this.setState({ minutes : newMin, count : newMin*60 });
+  },
+  
+  handleAudioClick : function(newAudio){
+    this.setState({ audio : newAudio });
+  },
+  
+   render : function() {
+     return(
+        <div>
+         
+         <div className="row">
+           <div className="columns small-8 small-offset-2 medium-6 medium-offset-3 large-4 large-offset-4 text-center">
+             <Clock totalSeconds={this.state.count} />
+           </div>
+           <div className="columns small-2 medium-3 large-4 audio-button">
+             <Audio onAudioClick={this.handleAudioClick}/>
+           </div>
+         </div>
+         <Buttons onPlay={this.handlePlay} onPause={this.handlePause} onStop={this.handleStop} clockStatus={this.state.status}/>
+         <Controls onBreakChange={this.handleBreakChange} onMinutesChange={this.handleMinutesChange} />
+        </div>
+     );
+   }
+});
+
+
+// Displays the clock with number countdown
+let Clock = React.createClass({
+  
+  getDefaultProps: function() {
+    return {
+      totalSeconds : 25*60
+    }
+  },
+  
+  propTypes : {
+     totalSeconds : React.PropTypes.number 
+  }, 
+  
+  formatSeconds : function(totalSeconds){
+    let sec = totalSeconds % 60;
+    let min = Math.floor(totalSeconds / 60);
+    
+    if ( sec < 10 ) sec = '0' + sec;
+    if ( min < 10 ) min = '0' + min;
+    return min + ':' + sec;
+  },
+  
+  render : function() {
+    let {totalSeconds} = this.props;
+    
+    return (
+      <div className='clock'>
+        <span className='clock-text'>
+          {this.formatSeconds(totalSeconds)}
+        </span>
+      </div>
+    );
+  }
+});
+
+
+// Clock controls of Break and Workout
+let Controls = React.createClass({
+  
+  onBreakChange : function(e){
+      // Update pomo breakLength
+      // let val = $('#inp_break').val();
+      // if ( val < 1 || val > 50 )
+      //   $('#inp_break').val(5);
+      this.props.onBreakChange($('#inp_break').val());
+  },
+  
+  onMinutesChange : function(e){
+      // Update minutes in pomo and clock display
+      // let val = $('#inp_minutes').val();
+      // if ( val < 5 || val > 100 )
+      //   $('#inp_minutes').val(25);
+      this.props.onMinutesChange($('#inp_minutes').val());
+  },
+ 
+  render : function(){
+   
+    return (
+      <div>
+          <div className="row">
+            <div className="columns small-4 text-center">
+              <span className="control-label"> Break </span>
+            </div>
+            <div className="columns small-4 text-center">
+              <input type="number" className="text-center" id="inp_break" defaultValue={5} onChange={this.onBreakChange} min="1" max="50" />
+            </div>
+            <div className="columns small-4">
+              <span className="control-range"> ( 1 - 50 )</span>
+            </div>
+          </div>
+        
+          <div className="row">
+            <div className="columns small-4 text-center">
+              <span className="control-label"> Workout </span>
+            </div>
+            <div className="columns small-4 text-center">
+              <input type="number" className="text-center" id="inp_minutes" defaultValue={25} onChange={this.onMinutesChange} min="1" max="100" />
+            </div>
+            <div className="columns small-4">
+              <span className="control-range"> ( 1 - 100 )</span>
+            </div>
+          </div>
+      </div>
+    );
+  }
+});
+
+
+// Play, Pause and Stop buttons
+let Buttons = React.createClass({
+  
+  getDefaultProps : function(){
+    return {
+      clockStatus : 'stopped'
+    }
+  },
+  
+  componentDidUpdate : function(){
+    if ( this.props.clockStatus == 'stopped' )
+      $('#btnPlay').attr('disabled', false);
+  },
+  
+  onClickPlay : function(e){
+      e.preventDefault();
+      if ( $('#inp_break').val() < 1 || $('#inp_break').val() > 50 )
+        $('#inp_break').val(5);
+      if ( $('#inp_minutes').val() < 1 || $('#inp_minutes').val() > 100 )
+        $('#inp_minutes').val(25);
+      $('#btnPlay').attr('disabled', true);
+      $('#inp_break').attr('disabled', true);
+      $('#inp_minutes').attr('disabled', true);
+      this.props.onPlay();
+  },
+  
+  onClickPause : function(e){
+      e.preventDefault();
+      if ($('#btnPlay').attr('disabled'))
+        $('#btnPlay').attr('disabled', false);
+      this.props.onPause();
+  },
+  
+  onClickStop : function(e){
+      e.preventDefault();
+      $('#btnPlay').attr('disabled', false);
+      $('#inp_break').attr('disabled', false);
+      $('#inp_minutes').attr('disabled', false);
+      this.props.onStop();
+  },
+  
+  render : function(){
+    return (
+      <div>
+        <div className="row">
+            <div className="button-group columns small-12 small-centered text-center">
+              <button className="success button" id="btnPlay" onClick={this.onClickPlay}>Play <i className="fa fa-play"></i></button>
+             <button className="warning button" id="btnPause" onClick={this.onClickPause}>Pause <i className="fa fa-pause"></i></button>
+             <button className="alert button" id="btnStop" onClick={this.onClickStop}>Stop <i className="fa fa-stop"></i></button>
+            </div>
+          </div>
+      </div>
+    );
+  }
+});
+
+// Audio component
+let Audio = React.createClass({
+  
+  onAudioClick : function(e){
+    // toggle button class
+    document.getElementById('workoutOver').volume = 0.0;
+    document.getElementById('workoutOver').play();
+    document.getElementById('breakOver').volume = 0.0;
+    document.getElementById('breakOver').play();
+    
+    let audio = '';
+    if($('#faAudio').hasClass('fa-volume-up')){
+      $('#faAudio').removeClass('fa-volume-up');
+      $('#faAudio').addClass('fa-volume-off');
+      audio = 'off';
+    } else {
+      $('#faAudio').removeClass('fa-volume-off');
+      $('#faAudio').addClass('fa-volume-up');
+      audio = 'on';
+    }
+    e.preventDefault();
+    this.props.onAudioClick(audio);
+  },
+  
+  render : function(){
+    return (
+      <div>
+        <button type="button" id="btnAudio" className="button primary small" onClick={this.onAudioClick} style={{height : '2rem', width : '2rem'}}><i id='faAudio' className="fa fa-volume-off"></i> </button>
+      </div>
+    );
+  }
+});
+
+
+// Main component to hold child components
+let Main = React.createClass({
+  render : function(){
+    return (
+      <div>
+        <NavBar/>  
+        <Pomodoro />
+      </div>
+    );
+  }
+});
+
+
+ReactDOM.render(<Main/>, document.getElementById('app'));

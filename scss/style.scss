@@ -1,0 +1,73 @@
+
+/*********************
+  Variables start here
+*/
+// Navigation vars
+$grey : #333333;
+$nav-background : $grey;
+$nav-text-color : white;
+// Clock vars
+$clock-text-color : white;
+$clock-bg-color : #B5D0E2;
+$clock-border-color : #2099EB;
+/*
+  Variables end here
+*********************/
+
+
+
+
+// Navigation bar styles
+.top-bar, .top-bar ul {
+  background-color : $nav-background;
+}
+
+.top-bar {
+  .menu-text {
+    color : $nav-text-color;
+  }
+  
+  .menu > .menu-text > a {
+    display : inline;
+    padding : 0;
+  }
+}
+
+
+// Clock styles
+.clock {
+  align-items : center;
+  background-color : $clock-bg-color;
+  border : 2px solid $clock-border-color;
+  border-radius : 50%;
+  display : flex;
+  height:  14rem;
+  justify-content : center;
+  margin : 4rem auto;
+  width: 14rem;
+}
+
+.clock-text {
+  color : $clock-text-color;
+  font-size : 2.25rem;
+  font-weight : 300;
+}
+
+
+// Control-styles
+.control-range {
+  font-size : 0.7rem;
+}
+
+.control-label {
+  font-size : 1.5rem;
+  font-weight : 200;
+  font-family : 'Monospace';
+  float : right;
+}
+
+
+// Audio styles
+.audio-button {
+  margin: 10rem auto;
+}

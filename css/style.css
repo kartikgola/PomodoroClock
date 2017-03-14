@@ -1,0 +1,50 @@
+/*********************
+  Variables start here
+*/
+/*
+  Variables end here
+*********************/
+.top-bar, .top-bar ul {
+  background-color: #333333;
+}
+
+.top-bar .menu-text {
+  color: white;
+}
+.top-bar .menu > .menu-text > a {
+  display: inline;
+  padding: 0;
+}
+
+.clock {
+  align-items: center;
+  background-color: #B5D0E2;
+  border: 2px solid #2099EB;
+  border-radius: 50%;
+  display: flex;
+  height: 14rem;
+  justify-content: center;
+  margin: 4rem auto;
+  width: 14rem;
+}
+
+.clock-text {
+  color: white;
+  font-size: 2.25rem;
+  font-weight: 300;
+}
+
+.control-range {
+  font-size: 0.7rem;
+}
+
+.control-label {
+  font-size: 1.5rem;
+  font-weight: 200;
+  font-family: 'Monospace';
+  float: right;
+}
+
+.audio-button {
+  margin: 10rem auto;
+}
